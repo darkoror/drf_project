@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "==2.2.19"
+djangorestframework = "==3.12.4"
+markdown = "*"
+django-filter = "*"
+flake8 = "*"
+environs = "*"
+argon2-cffi = "*"
+djangorestframework-simplejwt = "*"
+djangorestframework-camel-case = "*"
+django-cors-headers = "*"
+psycopg2-binary = "*"
+pillow = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
