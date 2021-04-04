@@ -14,8 +14,9 @@ argon2-cffi = "*"
 djangorestframework-simplejwt = "*"
 djangorestframework-camel-case = "*"
 django-cors-headers = "*"
-psycopg2-binary = "*"
 pillow = "*"
+psycopg2-binary = "*"
+drf-yasg = "*"
 
 [dev-packages]
 
