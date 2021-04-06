@@ -5,7 +5,7 @@ from blog import views
 
 app_name = 'author-post'
 author_post_router = SimpleRouter()
-author_post_router.register('post', views.AuthorPost, basename='author-posts')
+author_post_router.register('posts', views.AuthorPost, basename='author-posts')
 
 urlpatterns = [
     path('posts', views.SFAuthorPost)

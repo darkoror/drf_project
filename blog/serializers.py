@@ -43,9 +43,9 @@ class PostSerializer(serializers.ModelSerializer):
         read_only_fields = ("created_at", "updated_at", "author")
 
     def create(self, validated_data):
-        author = self.request.user
+        print(self.context["request"].user)
+        author = self.context["request"].user
         instance = super().create(**validated_data)
         instance.author = author
         instance.save()
         return instance
-
