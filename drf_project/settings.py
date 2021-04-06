@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 
     'authentication',
     'blog',
+    'rest_framework_simplejwt.token_blacklist'
 ]
 
 MIDDLEWARE = [
@@ -96,13 +97,19 @@ REST_FRAMEWORK = {
     },
     'TEST_REQUEST_DEFAULT_FORMAT': 'json',
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }
 
 
 # Simple JWT settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(
-        hours=env.int('ACCESS_TOKEN_LIFETIME_HOURS', 0),
+        hours=env.int('ACCESS_TOKEN_LIFETIME_HOURS', 1000),
         minutes=env.int('ACCESS_TOKEN_LIFETIME_MINUTES', 20),
     ),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=env.int('REFRESH_TOKEN_LIFETIME_DAYS', 7)),
@@ -227,12 +234,23 @@ LOGGING = {
 }
 
 
-# CELERYMEDIA_ROOT
-CELERY_BROKER_URL = env.str('BROKER_URL')
-CELERY_TASK_DEFAULT_QUEUE = "django"
+# EMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-CELERY_TASK_SOFT_TIME_LIMIT = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SEC', 40)
-CELERY_WORKER_SEND_TASK_EVENTS = True
+EMAIL_USE_TLS = True
+EMAIL_HOST = env.str('EMAIL_SMTP', 'smtp.gmail.com')
+EMAIL_HOST_USER = env.str('EMAIL_USER', '')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_PASSWORD', '')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_PORT = 587
+
+
+# CELERYMEDIA_ROOT
+# CELERY_BROKER_URL = env.str('BROKER_URL')
+# CELERY_TASK_DEFAULT_QUEUE = "django"
+
+# CELERY_TASK_SOFT_TIME_LIMIT = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SEC', 40)
+# CELERY_WORKER_SEND_TASK_EVENTS = True
 
 
 # Internationalization

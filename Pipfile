@@ -17,6 +17,7 @@ django-cors-headers = "*"
 pillow = "*"
 psycopg2-binary = "*"
 drf-yasg = "*"
+mixer = "*"
 
 [dev-packages]
 

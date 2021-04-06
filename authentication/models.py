@@ -10,7 +10,7 @@ class CustomAccountManager(UserManager):
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
         user = self.create_user(email=email, username=username, password=password, **extra_fields)
-        # user.is_active = True
+        user.is_active = True
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
@@ -18,59 +18,42 @@ class CustomAccountManager(UserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    # username = models.CharField(max_length=150, unique=True, validators=[UnicodeUsernameValidator])
     username = models.CharField(max_length=150, unique=True)
 
     email = models.EmailField(verbose_name=_('email address'), max_length=255, unique=True)
 
     avatar = models.ImageField(upload_to='avatars', null=True, blank=True, max_length=255)
 
-    # birth_year = models.PositiveIntegerField(null=True, blank=True,
-    #                                          validators=[
-    #                                              validators.MinValueValidator(
-    #                                                  limit_value=1900
-    #                                              )
-    #                                          ])
-    # location = models.CharField(max_length=255, null=True, blank=True)
-
-    # annual_income = models.FloatField(null=True, blank=True)
-
-    # industry = models.ForeignKey('industries.Industry', models.SET_NULL, null=True, blank=True)  # Can this be null?
-    # financial_goals = models.TextField(null=True, blank=True)
-
     is_staff = models.BooleanField(default=False,
                                    help_text=_('Designates whether this user can access this admin site.'),
                                    verbose_name=_('is staff'))
-    # is_active = models.BooleanField(
-    #     default=False,
-    #     help_text=_(
-    #         'Designates whether this user should be treated as active. '
-    #         'Unselect this instead of deleting accounts.'
-    #     ),
-    #     verbose_name=_('is active')
-    # )
-    # is_restoring_password = models.BooleanField(
-    #     default=False,
-    #     help_text=_(
-    #         'Designates that this user should confirm email after password reset . '
-    #     ),
-    #     verbose_name=_('restoring_password')
-    # )
+    is_active = models.BooleanField(
+        default=False,
+        help_text=_(
+            'Designates whether this user should be treated as active. '
+            'Unselect this instead of deleting accounts.'
+        ),
+        verbose_name=_('is active')
+    )
+    is_restoring_password = models.BooleanField(
+        default=False,
+        help_text=_(
+            'Designates that this user should confirm email after password reset . '
+        ),
+        verbose_name=_('restoring_password')
+    )
     is_superuser = models.BooleanField(default=False,
                                        help_text=_('Designates that this user has all permissions without '
                                                    'explicitly assigning them.'),
                                        verbose_name=_('is superuser'))
 
-    # date_joined = models.DateTimeField(auto_now_add=True, verbose_name=_('date joined'))
-    # last_login = models.DateTimeField(_('last login'), blank=True, null=True)
-
     objects = CustomAccountManager()
 
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ('username',)
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ('email',)
 
     def __str__(self):
-        return f"{self.id}, {self.email}"
+        return f"{self.username}"
 
     def has_perm(self, perm, obj=None):
         """
