@@ -1,24 +1,18 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 from authentication.models import User
 
 
 class SignUpSerializer(serializers.ModelSerializer):
-    password_repeated = serializers.CharField(write_only=True)
-    password = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ("id", "username", "email", "password", "password_repeated", "role")
-        read_only_fields = ("id", "role")
-        write_only_fields = ("password", "password_repeated")
-
-    def validate(self, data):
-        if data["password_repeated"] != data["password"]:
-            error = "Repeated password is not equal to password"
-            raise serializers.ValidationError(error)
-        return data
+        fields = ("id", "username", "email", "password")
+        read_only_fields = ("id",)
+        write_only_fields = ("password",)
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -26,12 +20,21 @@ class SignUpSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(error)
         return value.lower()
 
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+
+        return user
+
 
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
     default_error_messages = {
-        'bad_token': ('Token is expired or invalid')
+        'bad_token': 'Token is expired or invalid'
     }
 
     def validate(self, attrs):

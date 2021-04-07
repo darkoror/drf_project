@@ -56,11 +56,11 @@ class TestSFPost(BaseAPITest):
         self.post2 = mixer.blend(Post, author=self.user2)
 
     def test_create_like(self):
-        resp = self.client.post(reverse('author-post:posts-like-detail', args=(self.post2.id,)))
+        resp = self.client.post(reverse('author-post:sf-posts-like', args=(self.post2.id,)))
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(Like.objects.filter(author=self.user, post=self.post2).exists())
 
     def test_create_like_own_post(self):
-        resp = self.client.post(reverse('author-post:posts-like-detail', args=(self.post.id,)))
+        resp = self.client.post(reverse('author-post:sf-posts-like', args=(self.post.id,)))
         self.assertEqual(resp.status_code, 403)
         self.assertFalse(Like.objects.filter(author=self.user, post=self.post).exists())

@@ -9,6 +9,12 @@ class SignUpView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = SignUpSerializer
 
+    def perform_create(self, serializer):
+        # send mail with activate link
+        a = serializer.data["email"]
+        print(a)
+        serializer.save()
+
 
 class LogoutView(generics.GenericAPIView):
     serializer_class = LogoutSerializer

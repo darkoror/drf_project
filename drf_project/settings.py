@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import datetime
 import os
 from environs import Env
+from celery.schedules import crontab
 
 env = Env()
 
@@ -140,7 +141,7 @@ DATABASES = {
         'USER': env.str('POSTGRES_USER', ''),
         'PASSWORD': env.str('POSTGRES_PASSWORD', ''),
         'HOST': env.str('DB_HOST', ''),
-        'PORT': env.str('DB_PORT', '5432'),
+        'PORT': env.int('DB_PORT', 5432),
     },
 }
 
@@ -167,6 +168,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # AUTH_USER_MODEL
 AUTH_USER_MODEL = 'authentication.User'
 
+APPEND_SLASH = True
 
 # Password hashing
 # https://docs.djangoproject.com/en/2.2/topics/auth/passwords/#using-argon2-with-django
@@ -231,6 +233,20 @@ LOGGING = {
             'level': env.str('DJANGO_LOG_LEVEL', 'INFO'),
         },
     },
+}
+
+
+CELERY_BROKER_URL = env.str('BROKER_URL')
+CELERY_TASK_SOFT_TIME_LIMIT = env.int('TASK_SOFT_TIME_LIMIT_SEC', 40)
+CELERY_BEAT_SCHEDULE = {
+    'clear-old-galk-sites': {
+        'task': 'sites.tasks.delete_old_galk',
+        'schedule': crontab(minute=0, hour=0, day_of_week=0),
+    },
+    'clear-old-postcoder-addresses': {
+        'task': 'sites.tasks.delete_old_postcoder_addresses',
+        'schedule': crontab(minute=0, hour=0, day_of_week=0),
+    }
 }
 
 

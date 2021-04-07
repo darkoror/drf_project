@@ -6,7 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from blog.models import Post, Like
 from blog.serializers import PostSerializer
-from blog.service import PostFilter
+# from blog.service import PostFilter
 
 
 class AuthorPost(viewsets.ModelViewSet):
@@ -67,11 +67,11 @@ class SFAuthorPost(viewsets.ReadOnlyModelViewSet):
     permission_classes = (AllowAny,)
     serializer_class = PostSerializer
     queryset = Post.objects.all()
-    filter_backends = (DjangoFilterBackend,)
-    filterset_class = PostFilter
+    # filter_backends = (DjangoFilterBackend,)
+    # filterset_class = PostFilter
 
     @action(detail=True, methods=['POST'], permission_classes=(IsAuthenticated,))
-    def like(self, request, ref=None):
+    def like(self, request, *args, **kwargs):
         obj = self.get_object()
         user = self.request.user
         like = Like.objects.filter(post=obj, author=user)
