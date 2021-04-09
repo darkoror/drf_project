@@ -11,9 +11,8 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ("email", "username")
 
     def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
-            error = f"User with the email '{value}' already exists"
-            raise serializers.ValidationError(error)
+        if not value:
+            return value
         return value.lower()
 
     # def update(self, instance, validated_data):
