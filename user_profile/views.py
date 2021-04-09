@@ -1,6 +1,5 @@
 from rest_framework import viewsets, mixins
 
-from authentication.models import User
 from user_profile.serializers import ProfileSerializer, ChangePasswordSerializer
 
 

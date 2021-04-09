@@ -19,6 +19,7 @@ psycopg2-binary = "*"
 drf-yasg = "*"
 mixer = "*"
 celery = "*"
+redis = "*"
 
 [dev-packages]
 

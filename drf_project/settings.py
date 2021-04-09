@@ -45,10 +45,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'django_filters',
+    'rest_framework_simplejwt.token_blacklist',
 
     'authentication',
     'blog',
-    'rest_framework_simplejwt.token_blacklist'
+    'user_profile',
+
 ]
 
 MIDDLEWARE = [
@@ -110,7 +112,7 @@ REST_FRAMEWORK = {
 # Simple JWT settings
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(
-        hours=env.int('ACCESS_TOKEN_LIFETIME_HOURS', 1000),
+        hours=env.int('ACCESS_TOKEN_LIFETIME_HOURS', 1000),  # default should be equal to 0
         minutes=env.int('ACCESS_TOKEN_LIFETIME_MINUTES', 20),
     ),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=env.int('REFRESH_TOKEN_LIFETIME_DAYS', 7)),
@@ -180,6 +182,13 @@ PASSWORD_HASHERS = [
 ]
 
 
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+
 # Logging
 DJANGO_LOGFILE_NAME = env.str('DJANGO_LOG_PATH', os.path.join(BASE_DIR, '.data/django/drf_project.log'))
 LOGFILE_SIZE = 5 * 1024 * 1024
@@ -236,6 +245,9 @@ LOGGING = {
 }
 
 
+# CELERYMEDIA_ROOT
+CELERY_TASK_DEFAULT_QUEUE = "django"
+CELERY_WORKER_SEND_TASK_EVENTS = True
 CELERY_BROKER_URL = env.str('BROKER_URL')
 CELERY_TASK_SOFT_TIME_LIMIT = env.int('TASK_SOFT_TIME_LIMIT_SEC', 40)
 CELERY_BEAT_SCHEDULE = {
@@ -260,13 +272,9 @@ EMAIL_HOST_PASSWORD = env.str('EMAIL_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_PORT = 587
 
-
-# CELERYMEDIA_ROOT
-# CELERY_BROKER_URL = env.str('BROKER_URL')
-# CELERY_TASK_DEFAULT_QUEUE = "django"
-
-# CELERY_TASK_SOFT_TIME_LIMIT = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SEC', 40)
-# CELERY_WORKER_SEND_TASK_EVENTS = True
+FRONT_END_DOMAIN = env.str('FRONT_END_DOMAIN', '')
+FRONT_END_ACTIVATE_EMAIL_LINK = env.str('FRONT_END_ACTIVATE_EMAIL_LINK', '')
+FRONT_END_PASSWORD_RESET_LINK = env.str('FRONT_END_PASSWORD_RESET_LINK', '')
 
 
 # Internationalization
