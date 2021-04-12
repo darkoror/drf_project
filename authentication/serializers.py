@@ -75,10 +75,8 @@ class PasswordResetSerializer(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError(f"There is no such user with provided email '{value}'")
 
-    def restore_password_send_email(self):
+    def send_email(self):
         user = User.objects.get(email=self.validated_data['email'])
-        # user.is_active = False
-        user.is_restoring_password = True
         user.save()
 
         token = f"{urlsafe_base64_encode(force_bytes(user.email))}.{default_token_generator.make_token(user)}"
@@ -97,12 +95,15 @@ class PasswordResetSerializer(serializers.ModelSerializer):
 
 
 class SetNewPasswordSerializer(serializers.ModelSerializer):
+    token = serializers.CharField()
     password = serializers.CharField(write_only=True, required=True)
+    password_repeat = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ("id", "password", "token")
+        fields = ("id", "password", "password_repeat", "token")
         read_only_fields = ("id",)
+        write_only_fields = ("password", "password_repeat")
 
     def validate(self, data):
         token = data['token']
@@ -118,17 +119,19 @@ class SetNewPasswordSerializer(serializers.ModelSerializer):
         except User.DoesNotExist:
             raise serializers.ValidationError(error)
 
-        print(user.password)
-
         if not default_token_generator.check_token(user, token):
             raise serializers.ValidationError(error)
 
         data['email'] = uid
         return data
 
+    def validate_password(self, value):
+        password = value
+        if password != self.initial_data["password_repeat"]:
+            raise serializers.ValidationError("Passwords don`t match")
+        return value
+
     def set_new_password(self):
         user = User.objects.get(email=self.validated_data['email'])
         user.set_password(self.validated_data['password'])
-        user.is_restoring_password = False
-        # user.is_active = True
         user.save()

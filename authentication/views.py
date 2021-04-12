@@ -56,7 +56,7 @@ class PasswordReset(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            serializer.restore_password_send_email()
+            serializer.send_email()
         return Response({"password": "Password reset link sent to your email"}, status=status.HTTP_200_OK)
 
 
@@ -68,4 +68,5 @@ class SetNewPassword(APIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.set_new_password()
-        return Response({"password": "Successfully reset"}, status=status.HTTP_200_OK)
+            return Response({"password": "Successfully reset"}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

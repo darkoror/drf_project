@@ -33,13 +33,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         ),
         verbose_name=_('is active')
     )
-    is_restoring_password = models.BooleanField(
-        default=False,
-        help_text=_(
-            'Designates that this user should confirm email after password reset . '
-        ),
-        verbose_name=_('restoring_password')
-    )
     is_superuser = models.BooleanField(default=False,
                                        help_text=_('Designates that this user has all permissions without '
                                                    'explicitly assigning them.'),

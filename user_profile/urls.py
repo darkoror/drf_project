@@ -5,13 +5,12 @@ from user_profile import views
 
 app_name = 'user-profile'
 user_profile_router = SimpleRouter()
-# user_profile_router.register('change_password', views.ChangePassword, basename='change-password')
 
 urlpatterns = [
-    path('', views.UserProfile.as_view({'get': 'retrieve'})),
+    path('', views.UserProfile.as_view({'get': 'retrieve'}), name='get-user-profile'),
     path('update', views.UserProfile.as_view({'put': 'update',
-                                              'patch': 'partial_update'})),
-    path('change_password', views.ChangePassword.as_view({'patch': 'partial_update'})),
+                                              'patch': 'partial_update'}), name='update-user-profile'),
+    path('change_password', views.ChangePassword.as_view({'patch': 'partial_update'}), name='change-password'),
 ]
 
 urlpatterns += user_profile_router.urls
