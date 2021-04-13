@@ -10,7 +10,6 @@ from rest_framework.views import APIView
 
 from authentication.serializers import SignUpSerializer, EmailVerifySerializer, PasswordResetSerializer, \
     SetNewPasswordSerializer
-from authentication.models import User
 from authentication.tasks import send_email
 from drf_project.settings import FRONT_END_DOMAIN, FRONT_END_ACTIVATE_EMAIL_LINK
 
@@ -20,8 +19,7 @@ class SignUpView(generics.CreateAPIView):
     serializer_class = SignUpSerializer
 
     def perform_create(self, serializer):
-        serializer.save()
-        user = User.objects.get(email=serializer.data["email"])
+        user = serializer.save()
 
         token = f"{urlsafe_base64_encode(force_bytes(user.email))}.{default_token_generator.make_token(user)}"
 

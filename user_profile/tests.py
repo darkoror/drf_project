@@ -7,7 +7,6 @@ class TestUserProfile(BaseAPITest):
 
     def setUp(self):
         self.user = self.create_and_login()
-        self.user.save()
 
     def test_retrieve_user_profile(self):
         resp = self.client.get(reverse('user-profile:get-user-profile'))
@@ -23,8 +22,11 @@ class TestUserProfile(BaseAPITest):
 
     def test_change_password(self):
         data = {
-            "password": "new password"
+            "old_password": 'qwerty123456',
+            "new_password": "new password",
+            "confirmed_password": "new password"
         }
-        resp = self.client.patch(reverse('user-profile:change-password'), data=data)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(data["password"], resp.data["password"])
+        resp = self.client.post(reverse('user-profile:change-password'), data=data)
+        self.assertEqual(resp.status_code, 204)
+        self.client.logout()
+        self.assertTrue(self.client.login(username=self.user.username, password=data["new_password"]))

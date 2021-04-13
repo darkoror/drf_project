@@ -1,3 +1,4 @@
+from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
@@ -126,8 +127,8 @@ class SetNewPasswordSerializer(serializers.ModelSerializer):
         return data
 
     def validate_password(self, value):
-        password = value
-        if password != self.initial_data["password_repeat"]:
+        validate_password(value)
+        if value != self.initial_data["password_repeat"]:
             raise serializers.ValidationError("Passwords don`t match")
         return value
 

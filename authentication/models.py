@@ -1,18 +1,9 @@
 from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.contrib.auth.models import UserManager, PermissionsMixin
+from django.contrib.auth.models import PermissionsMixin
 from django.utils.translation import gettext_lazy as _
 
-
-class CustomAccountManager(UserManager):
-
-    def create_superuser(self, username, email=None, password=None, **extra_fields):
-        user = self.create_user(email=email, username=username, password=password, **extra_fields)
-        user.is_active = True
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
-        return user
+from authentication.managers import CustomUserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -38,7 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                                                    'explicitly assigning them.'),
                                        verbose_name=_('is superuser'))
 
-    objects = CustomAccountManager()
+    objects = CustomUserManager()
 
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ('email',)

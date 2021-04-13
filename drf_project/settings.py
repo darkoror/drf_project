@@ -182,13 +182,6 @@ PASSWORD_HASHERS = [
 ]
 
 
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-
-
 # Logging
 DJANGO_LOGFILE_NAME = env.str('DJANGO_LOG_PATH', os.path.join(BASE_DIR, '.data/django/drf_project.log'))
 LOGFILE_SIZE = 5 * 1024 * 1024
@@ -246,20 +239,9 @@ LOGGING = {
 
 
 # CELERYMEDIA_ROOT
-CELERY_TASK_DEFAULT_QUEUE = "django"
-CELERY_WORKER_SEND_TASK_EVENTS = True
-CELERY_BROKER_URL = env.str('BROKER_URL')
+BROKER_URL = env.str('BROKER_URL')
+# CELERY_BROKER_URL = env.str('BROKER_URL')
 CELERY_TASK_SOFT_TIME_LIMIT = env.int('TASK_SOFT_TIME_LIMIT_SEC', 40)
-CELERY_BEAT_SCHEDULE = {
-    'clear-old-galk-sites': {
-        'task': 'sites.tasks.delete_old_galk',
-        'schedule': crontab(minute=0, hour=0, day_of_week=0),
-    },
-    'clear-old-postcoder-addresses': {
-        'task': 'sites.tasks.delete_old_postcoder_addresses',
-        'schedule': crontab(minute=0, hour=0, day_of_week=0),
-    }
-}
 
 
 # EMAIL

@@ -11,7 +11,6 @@ class TestBlogCategories(BaseAPITest):
 
     def setUp(self):
         self.user = self.create_and_login()
-        self.user.save()
         self.post = mixer.blend(Post, author=self.user)
 
     def test_list_authors_post(self):
@@ -26,6 +25,14 @@ class TestBlogCategories(BaseAPITest):
         resp = self.client.post(reverse('author-post:author-posts-list'), data=data)
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(data["title"], resp.data["title"])
+
+    def test_create_author_post_no_data(self):
+        data = {
+            "title": "",
+            "content": ""
+        }
+        resp = self.client.post(reverse('author-post:author-posts-list'), data=data)
+        self.assertEqual(resp.status_code, 400)
 
     def test_update_author_post(self):
         data = {
@@ -50,7 +57,6 @@ class TestSFPost(BaseAPITest):
 
     def setUp(self):
         self.user = self.create_and_login()
-        self.user.save()
         self.user2 = mixer.blend(User)
         self.post = mixer.blend(Post, author=self.user)
         self.post2 = mixer.blend(Post, author=self.user2)
@@ -62,5 +68,5 @@ class TestSFPost(BaseAPITest):
 
     def test_create_like_own_post(self):
         resp = self.client.post(reverse('author-post:sf-posts-like', args=(self.post.id,)))
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 400)
         self.assertFalse(Like.objects.filter(author=self.user, post=self.post).exists())

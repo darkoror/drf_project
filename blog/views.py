@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status, filters
 
 from blog.models import Post, Like
-from blog.serializers import PostSerializer
+from blog.serializers import PostSerializer, SFPostSerializer
 
 
 class AuthorPost(viewsets.ModelViewSet):
@@ -65,7 +65,7 @@ class SFAuthorPost(viewsets.ReadOnlyModelViewSet):
     Create or destroy one like for post
     """
     permission_classes = (AllowAny,)
-    serializer_class = PostSerializer
+    serializer_class = SFPostSerializer
     queryset = Post.objects.all()
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
@@ -79,6 +79,6 @@ class SFAuthorPost(viewsets.ReadOnlyModelViewSet):
             like.delete()
         else:
             if obj.author == user:
-                return Response(status=status.HTTP_403_FORBIDDEN)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             Like.objects.create(post=obj, author=user)
         return Response(status=status.HTTP_200_OK)
