@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import datetime
 import os
 from environs import Env
-from celery.schedules import crontab
 
 env = Env()
 
