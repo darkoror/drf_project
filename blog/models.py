@@ -19,8 +19,8 @@ class Post(models.Model):
 
 
 class Like(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, related_name="likes")
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="likes")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, related_name="author_likes")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, related_name="post_likes")
 
     def __str__(self):
         return f"{self.author}, {self.post}"
@@ -29,3 +29,4 @@ class Like(models.Model):
         db_table = 'likes'
         verbose_name = "Like"
         verbose_name_plural = "Likes"
+        unique_together = ("author", "post")
