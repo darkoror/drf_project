@@ -25,6 +25,7 @@ class TestBlogCategories(BaseAPITest):
         resp = self.client.post(reverse('author-post:author-posts-list'), data=data)
         self.assertEqual(resp.status_code, 201)
         self.assertEqual(data["title"], resp.data["title"])
+        self.assertEqual(Post.objects.get(id=resp.data["id"]).author, self.user)
 
     def test_create_author_post_no_data(self):
         data = {
