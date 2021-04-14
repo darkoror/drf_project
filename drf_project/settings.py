@@ -169,7 +169,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # AUTH_USER_MODEL
 AUTH_USER_MODEL = 'authentication.User'
 
-APPEND_SLASH = True
 
 # Password hashing
 # https://docs.djangoproject.com/en/2.2/topics/auth/passwords/#using-argon2-with-django

@@ -49,7 +49,7 @@ class TestSignUp(BaseAPITest):
         self.assertTrue(User.objects.get(email=self.user.email).is_active)
 
     def test_activate_user_wrong_token(self):
-        token = f"SOMERANDOMTOKEN123"
+        token = "SOMERANDOMTOKEN123"
         resp = self.client.post(reverse('auth:email-verify'), data={"token": token})
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(User.objects.get(email=self.user.email).is_active)
@@ -79,14 +79,16 @@ class TestPasswordReset(BaseAPITest):
         delay.assert_not_called()
 
     def test_set_new_password(self):
-        self.data['token'] = f"{urlsafe_base64_encode(force_bytes(self.user.email))}.{default_token_generator.make_token(self.user)}"
+        self.data['token'] = \
+            f"{urlsafe_base64_encode(force_bytes(self.user.email))}.{default_token_generator.make_token(self.user)}"
 
         resp = self.client.post(reverse('auth:set-new-password'), data=self.data)
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(self.client.login(username=self.user.username, password=self.new_password))
 
     def test_wrong_repeat_password(self):
-        self.data['token'] = f"{urlsafe_base64_encode(force_bytes(self.user.email))}.{default_token_generator.make_token(self.user)}"
+        self.data['token'] = \
+            f"{urlsafe_base64_encode(force_bytes(self.user.email))}.{default_token_generator.make_token(self.user)}"
         self.data['password_repeat'] = "wrong repeat password"
 
         resp = self.client.post(reverse('auth:set-new-password'), data=self.data)

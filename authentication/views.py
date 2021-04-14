@@ -28,9 +28,9 @@ class SignUpView(generics.CreateAPIView):
         else:
             current_site = get_current_site(self.request).domain
             relativeLink = reverse("email-verify")
-            absurl = 'http://' + current_site + relativeLink + "?token=" + str(token)
+            absurl = f"http://{current_site}{relativeLink}?token={token}"
 
-        body = "Hi " + user.username + "\nUse link below to verify your email \n" + absurl
+        body = f"Hi {user.username}\nUse link below to verify your email \n{absurl}"
         subject = "Verify your email"
 
         send_email.delay(subject, body, [user.email])
