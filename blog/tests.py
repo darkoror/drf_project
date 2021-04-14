@@ -62,12 +62,27 @@ class TestSFPost(BaseAPITest):
         self.post = mixer.blend(Post, author=self.user)
         self.post2 = mixer.blend(Post, author=self.user2)
 
-    def test_create_like(self):
-        resp = self.client.post(reverse('author-post:sf-posts-like', args=(self.post2.id,)))
+    def test_list_posts(self):
+        resp = self.client.get(reverse('author-post:sf-posts-list'))
         self.assertEqual(resp.status_code, 200)
+
+    def test_create_like(self):
+        resp = self.client.post(reverse('author-post:sf-posts-create-like', args=(self.post2.id,)))
+        self.assertEqual(resp.status_code, 201)
         self.assertTrue(Like.objects.filter(author=self.user, post=self.post2).exists())
 
+    def test_delete_like(self):
+        self.client.post(reverse('author-post:sf-posts-create-like', args=(self.post2.id,)))
+        resp2 = self.client.delete(reverse('author-post:sf-posts-delete-like', args=(self.post2.id,)))
+        self.assertEqual(resp2.status_code, 204)
+        self.assertFalse(Like.objects.filter(author=self.user, post=self.post2).exists())
+
+    def test_delete_like_not_exists(self):
+        resp2 = self.client.delete(reverse('author-post:sf-posts-delete-like', args=(self.post2.id,)))
+        self.assertEqual(resp2.status_code, 400)
+        self.assertFalse(Like.objects.filter(author=self.user, post=self.post2).exists())
+
     def test_create_like_own_post(self):
-        resp = self.client.post(reverse('author-post:sf-posts-like', args=(self.post.id,)))
+        resp = self.client.post(reverse('author-post:sf-posts-create-like', args=(self.post.id,)))
         self.assertEqual(resp.status_code, 400)
         self.assertFalse(Like.objects.filter(author=self.user, post=self.post).exists())

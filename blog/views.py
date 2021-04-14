@@ -1,10 +1,11 @@
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import viewsets, status, filters
 
 from blog.models import Post, Like
-from blog.serializers import PostSerializer, SFPostSerializer
+from blog.serializers import PostSerializer, SFPostSerializer, CreateLikeSerializer
 
 
 class AuthorPost(viewsets.ModelViewSet):
@@ -70,15 +71,34 @@ class SFAuthorPost(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
-    @action(detail=True, methods=['POST'], permission_classes=(IsAuthenticated,))
-    def like(self, request, *args, **kwargs):
-        obj = self.get_object()
+    @action(detail=True, methods=['POST'], permission_classes=(IsAuthenticated,), serializer_class=CreateLikeSerializer)
+    def create_like(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=self.request.data, context={"post": self.get_object(),
+                                                                          "user": self.request.user})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['DELETE'], permission_classes=(IsAuthenticated,))
+    def delete_like(self, request, *args, **kwargs):
+        post = self.get_object()
         user = self.request.user
-        like = Like.objects.filter(post=obj, author=user)
-        if like:
-            like.delete()
-        else:
-            if obj.author == user:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-            Like.objects.create(post=obj, author=user)
-        return Response(status=status.HTTP_200_OK)
+        try:
+            like = Like.objects.get(post=post, author=user)
+        except Like.DoesNotExist:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        like.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+        # obj = self.get_object()
+        # user = self.request.user
+        # like = Like.objects.filter(post=obj, author=user)
+        # if like:
+        #     like.delete()
+        # else:
+        #     if obj.author == user:
+        #         return Response(status=status.HTTP_400_BAD_REQUEST)
+        #     Like.objects.create(post=obj, author=user)
+        # return Response(status=status.HTTP_200_OK)

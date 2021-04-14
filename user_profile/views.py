@@ -30,7 +30,7 @@ class ChangePassword(APIView):
     serializer_class = ChangePasswordSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(instance=self.request.user, data=request.data)
+        serializer = self.serializer_class(instance=self.get_object(), data=request.data)
         serializer.is_valid(raise_exception=True)
 
         serializer.save()
