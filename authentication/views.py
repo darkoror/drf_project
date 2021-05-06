@@ -1,70 +1,95 @@
+from django.contrib.auth.tokens import default_token_generator
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
-from django.contrib.auth.tokens import default_token_generator
 from rest_framework.views import APIView
 
-from authentication.serializers import SignUpSerializer, EmailVerifySerializer, PasswordResetSerializer, \
-    SetNewPasswordSerializer
-from authentication.tasks import send_email
-from drf_project.settings import FRONT_END_DOMAIN, FRONT_END_ACTIVATE_EMAIL_LINK
+from authentication import tasks
+from authentication.serializers import SignUpSerializer, ActivateUserSerializer, PasswordResetSerializer, \
+    PasswordResetCompleteSerializer
+from authentication.utils import build_url
+from drf_project.settings import ACTIVATION_PATH, PASSWORD_RESET_PATH
+from authentication.models import User
 
 
 class SignUpView(generics.CreateAPIView):
+    """
+    post:
+    Create new user
+
+    Register a user with obtained params
+    """
     permission_classes = (AllowAny,)
     serializer_class = SignUpSerializer
 
     def perform_create(self, serializer):
         user = serializer.save()
-
-        token = f"{urlsafe_base64_encode(force_bytes(user.email))}.{default_token_generator.make_token(user)}"
-
-        if FRONT_END_DOMAIN:
-            absurl = f"{FRONT_END_DOMAIN}{FRONT_END_ACTIVATE_EMAIL_LINK}?token={token}"
-        else:
-            current_site = get_current_site(self.request).domain
-            relativeLink = reverse("email-verify")
-            absurl = f"http://{current_site}{relativeLink}?token={token}"
-
-        body = f"Hi {user.username}\nUse link below to verify your email \n{absurl}"
-        subject = "Verify your email"
-
-        send_email.delay(subject, body, [user.email])
+        context = {
+            'link': build_url(scheme=self.request.scheme,
+                              uid=urlsafe_base64_encode(force_bytes(user.id)),
+                              token=default_token_generator.make_token(user),
+                              path=ACTIVATION_PATH)
+        }
+        tasks.send_email.delay(subject="email/activate_account_subject.txt", template="email/activate_account.html",
+                               emails=[user.email], context=context)
 
 
-class EmailVerify(APIView):
+class ActivateUserView(APIView):
+    """
+    post:
+    Activate user
+
+    Activate a user by token
+    """
     permission_classes = (AllowAny,)
-    serializer_class = EmailVerifySerializer
+    serializer_class = ActivateUserSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.activate_user()
-        return Response({"email": "Successfully activated"}, status=status.HTTP_200_OK)
+        serializer.is_valid(raise_exception=True)
+        serializer.activate_user()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class PasswordReset(APIView):
+class PasswordResetView(APIView):
+    """
+    post:
+    Password reset
+
+    Send password reset link to email
+    """
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.send_email()
-        return Response({"password": "Password reset link sent to your email"}, status=status.HTTP_200_OK)
+        serializer.is_valid(raise_exception=True)
+        user = User.objects.get(email=serializer.validated_data["email"])
+        context = {
+            'link': build_url(scheme=self.request.scheme,
+                              uid=urlsafe_base64_encode(force_bytes(user.id)),
+                              token=default_token_generator.make_token(user),
+                              path=PASSWORD_RESET_PATH)
+            }
+        tasks.send_email.delay(subject="email/reset_password_subject.txt", template="email/reset_password.html",
+                               emails=[user.email], context=context)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class SetNewPassword(APIView):
+class PasswordResetCompleteView(APIView):
+    """
+    Password reset complete
+
+    Reset password by token
+    """
     permission_classes = (AllowAny,)
-    serializer_class = SetNewPasswordSerializer
+    serializer_class = PasswordResetCompleteSerializer
 
-    def post(self, request, *args, **kwargs):
+    #  use post method
+    def put(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.set_new_password()
-            return Response({"password": "Successfully reset"}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.set_new_password()
+        return Response(status=status.HTTP_204_NO_CONTENT)

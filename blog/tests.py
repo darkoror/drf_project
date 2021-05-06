@@ -7,7 +7,7 @@ from mixer.backend.django import mixer
 from drf_project.tests import BaseAPITest
 
 
-class TestBlogCategories(BaseAPITest):
+class TestAuthorBlogCategories(BaseAPITest):
 
     def setUp(self):
         self.user = self.create_and_login()
@@ -43,18 +43,20 @@ class TestBlogCategories(BaseAPITest):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(data["title"], resp.data["title"])
 
+    # test None
     def test_retrieve_author_post(self):
         resp = self.client.get(reverse('author-post:author-posts-detail', args=(self.post.id,)))
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(self.post.title, resp.data["title"])
 
+    # test None
     def test_delete_author_post(self):
         resp = self.client.delete(reverse('author-post:author-posts-detail', args=(self.post.id,)))
         self.assertEqual(resp.status_code, 204)
         self.assertFalse(Post.objects.filter(id=self.post.id).exists())
 
 
-class TestSFPost(BaseAPITest):
+class TestPost(BaseAPITest):
 
     def setUp(self):
         self.user = self.create_and_login()
@@ -70,6 +72,12 @@ class TestSFPost(BaseAPITest):
         resp = self.client.post(reverse('author-post:posts-like', args=(self.post2.id,)))
         self.assertEqual(resp.status_code, 204)
         self.assertTrue(Like.objects.filter(author=self.user, post=self.post2).exists())
+
+    def test_remove_like(self):
+        self.client.post(reverse('author-post:posts-like', args=(self.post2.id,)))
+        resp2 = self.client.post(reverse('author-post:posts-like', args=(self.post2.id,)))
+        self.assertEqual(resp2.status_code, 204)
+        self.assertFalse(Like.objects.filter(author=self.user, post=self.post2).exists())
 
     def test_create_like_own_post(self):
         resp = self.client.post(reverse('author-post:posts-like', args=(self.post.id,)))

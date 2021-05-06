@@ -1,8 +1,8 @@
-from rest_framework import viewsets, mixins, status
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework import viewsets, mixins
+from rest_framework.viewsets import GenericViewSet
 
-from user_profile.serializers import ProfileSerializer, ChangePasswordSerializer
+from authentication.models import User
+from user_profile.serializers import ProfileSerializer, PasswordChangeSerializer
 
 
 class UserProfile(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
@@ -22,19 +22,16 @@ class UserProfile(mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.G
         return self.request.user
 
 
-class ChangePassword(APIView):
+class PasswordChangeView(mixins.UpdateModelMixin, GenericViewSet):
     """
-    partial_update:
-    Change the password of the user
+    update:
+    Password change
+
+    Update password for current authenticated user
     """
-    serializer_class = ChangePasswordSerializer
 
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(instance=self.get_object(), data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        serializer.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    queryset = User.objects.all()
+    serializer_class = PasswordChangeSerializer
 
     def get_object(self):
         return self.request.user

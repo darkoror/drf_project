@@ -1,48 +1,45 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from authentication.models import User
+from user_profile import constants
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'username')
+        read_only_fields = ('id', 'email')
+
+
+class PasswordChangeSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password_confirm = serializers.CharField(write_only=True, required=True)
+    old_password = serializers.CharField(write_only=True, required=True)
+
+    default_error_messages = {
+        'password': constants.PASSWORDS_DID_NOT_MATCH,
+        'old_password': constants.WRONG_OLD_PASSWORD
+    }
 
     class Meta:
         model = User
-        fields = ("email", "username")
+        fields = ('old_password', 'password', 'password_confirm')
+        write_only_fields = fields
 
-    def validate_email(self, value):
-        if not value:
-            return value
-        return value.lower()
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password_confirm']:
+            self.fail('password')
 
-
-class PasswordSerializer(serializers.Serializer):
-    new_password = serializers.CharField(required=True)
-    confirmed_password = serializers.CharField(required=True)
-
-    def validate_new_password(self, value):
-        validate_password(value)
-        return value
-
-    def validate(self, data):
-        new_password = data['new_password']
-        confirmed_password = data['confirmed_password']
-        if new_password != confirmed_password:
-            raise serializers.ValidationError("The two password fields didn't match.")
-        return data
-
-
-class ChangePasswordSerializer(PasswordSerializer):
-    """Serializer for password change endpoint."""
-    old_password = serializers.CharField(required=True)
+        return attrs
 
     def validate_old_password(self, value):
-        if not self.instance.check_password(value):
-            raise ValidationError("Wrong current password.")
+        user = self.context['request'].user
+        if not user.check_password(value):
+            self.fail('old_password')
         return value
 
     def update(self, instance, validated_data):
-        self.instance.set_password(validated_data.get('new_password'))
-        self.instance.save()
-        return self.instance
+        instance.set_password(validated_data['password'])
+        instance.save()
+        return instance

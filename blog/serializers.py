@@ -3,7 +3,7 @@ from rest_framework import serializers
 from blog.models import Post
 
 
-class PostSerializer(serializers.ModelSerializer):
+class AuthorPostSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField(read_only=True)
     author = serializers.CharField(default=serializers.CurrentUserDefault())
 
@@ -16,7 +16,7 @@ class PostSerializer(serializers.ModelSerializer):
         return obj.post_likes.count()
 
 
-class SFPostSerializer(serializers.ModelSerializer):
+class PostSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField(read_only=True)
 
     class Meta:

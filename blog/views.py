@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status, filters
 
 from blog.models import Post, Like
-from blog.serializers import PostSerializer, SFPostSerializer
+from blog.serializers import AuthorPostSerializer, PostSerializer
 
 
 class AuthorPostView(viewsets.ModelViewSet):
@@ -39,7 +39,7 @@ class AuthorPostView(viewsets.ModelViewSet):
 
     Partial update one author post
     """
-    serializer_class = PostSerializer
+    serializer_class = AuthorPostSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
@@ -65,7 +65,7 @@ class PostView(viewsets.ReadOnlyModelViewSet):
     Create or destroy one like for post
     """
     permission_classes = (AllowAny,)
-    serializer_class = SFPostSerializer
+    serializer_class = PostSerializer
     queryset = Post.objects.all()
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']

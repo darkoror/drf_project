@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 import datetime
 import os
+
 from environs import Env
 
 env = Env()
@@ -251,9 +252,9 @@ EMAIL_HOST_PASSWORD = env.str('EMAIL_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_PORT = 587
 
-FRONT_END_DOMAIN = env.str('FRONT_END_DOMAIN', '')
-FRONT_END_ACTIVATE_EMAIL_LINK = env.str('FRONT_END_ACTIVATE_EMAIL_LINK', '')
-FRONT_END_PASSWORD_RESET_LINK = env.str('FRONT_END_PASSWORD_RESET_LINK', '')
+SITE_URL = env.str('SITE_URL', '')
+ACTIVATION_PATH = env.str('ACTIVATION_PATH', '')
+PASSWORD_RESET_PATH = env.str('PASSWORD_RESET_PATH', '')
 
 
 # Internationalization
