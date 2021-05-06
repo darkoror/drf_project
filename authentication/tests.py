@@ -133,28 +133,28 @@ class TestPasswordResetComplete(BaseAPITest):
         }
 
     def test_password_reset_complete(self):
-        resp = self.client.put(self.reset_password_url, data=self.data)
+        resp = self.client.post(self.reset_password_url, data=self.data)
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password(self.new_password))
 
     def test_password_reset_complete_wrong_token(self):
         self.data["token"] = f"{urlsafe_base64_encode(force_bytes(self.user.id))}.wrong_token"
-        resp = self.client.put(self.reset_password_url, data=self.data)
+        resp = self.client.post(self.reset_password_url, data=self.data)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.user.refresh_from_db()
         self.assertFalse(self.user.check_password(self.new_password))
 
     def test_password_reset_complete_wrong_uid(self):
         self.data["token"] = f"wrong_uid.{default_token_generator.make_token(self.user)}"
-        resp = self.client.put(self.reset_password_url, data=self.data)
+        resp = self.client.post(self.reset_password_url, data=self.data)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.user.refresh_from_db()
         self.assertFalse(self.user.check_password(self.new_password))
 
     def test_password_reset_complete_wrong_password_confirm(self):
         self.data["password_confirm"] = "wrong_password_confirm"
-        resp = self.client.put(self.reset_password_url, data=self.data)
+        resp = self.client.post(self.reset_password_url, data=self.data)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(self.user.check_password(self.new_password))
 
@@ -164,6 +164,6 @@ class TestPasswordResetComplete(BaseAPITest):
         self.data["token"] = f"{urlsafe_base64_encode(force_bytes(user.id))}." \
                              f"{default_token_generator.make_token(user)}"
         user.delete()
-        resp = self.client.put(self.reset_password_url, data=self.data)
+        resp = self.client.post(self.reset_password_url, data=self.data)
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertFalse(User.objects.filter(email=email).exists())

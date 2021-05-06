@@ -87,8 +87,7 @@ class PasswordResetCompleteView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = PasswordResetCompleteSerializer
 
-    #  use post method
-    def put(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.set_new_password()
