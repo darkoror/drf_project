@@ -1,23 +1,23 @@
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework import viewsets, status, filters
 
 from blog.models import Post, Like
-from blog.serializers import AuthorPostSerializer, PostSerializer
+from blog.serializers import PostSerializer
 
 
-class AuthorPostView(viewsets.ModelViewSet):
+class PostView(viewsets.ModelViewSet):
     """
     retrieve:
-    Get a author post
+    Get a post
 
-    Get one author post
+    Get one post
 
     list:
-    Get list of author posts
+    Get list of posts
 
-    Get full list of author posts
+    Get full list of posts
 
     create:
     Create new author post
@@ -39,34 +39,9 @@ class AuthorPostView(viewsets.ModelViewSet):
 
     Partial update one author post
     """
-    serializer_class = AuthorPostSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title']
-
-    def get_queryset(self, *args, **kwargs):
-        return Post.objects.filter(author=self.request.user)
-
-
-class PostView(viewsets.ReadOnlyModelViewSet):
-    """
-    retrieve:
-    Get a post
-
-    Get one post
-
-    list:
-    Get list of posts
-
-    Get full list of posts
-
-    like:
-    Create or destroy like for post
-
-    Create or destroy one like for post
-    """
-    permission_classes = (AllowAny,)
-    serializer_class = PostSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Post.objects.all()
+    serializer_class = PostSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 

@@ -18,7 +18,7 @@ class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ("id", "username", "email", "password", "password_confirm")
+        fields = ("id", "username", "email", "password", "password_confirm", "avatar")
         read_only_fields = ("id",)
 
     def validate_email(self, value):
