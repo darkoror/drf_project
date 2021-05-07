@@ -27,8 +27,3 @@ class PostSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         self.validate_change_own_post(self.context["request"].user, instance)
         return super().update(instance, validated_data)
-
-    def __delete__(self, instance):
-        self.validate_change_own_post(self.context["request"].user, instance)
-        # super().__delete__(instance)
-        self.__delete__(instance)

@@ -45,6 +45,12 @@ class PostView(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
+    def destroy(self, request, *args, **kwargs):
+        post = self.get_object()
+        if request.user.id == post.author.id:
+            return super(PostView, self).destroy(self, request, *args, **kwargs)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=True, methods=['POST'], permission_classes=(IsAuthenticated,))
     def like(self, request, *args, **kwargs):
         post = self.get_object()

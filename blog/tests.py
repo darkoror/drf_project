@@ -82,6 +82,11 @@ class TestBlogCategories(BaseAPITest):
         self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Post.objects.filter(id=self.post.id).exists())
 
+    def test_delete_not_own_post(self):
+        resp = self.client.delete(reverse('author-post:posts-detail', args=(self.post2.id,)))
+        self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(Post.objects.filter(id=self.post2.id).exists())
+
     def test_delete_post_deleted(self):
         self.client.delete(reverse('author-post:posts-detail', args=(self.post.id,)))
         resp = self.client.delete(reverse('author-post:posts-detail', args=(self.post.id,)))
