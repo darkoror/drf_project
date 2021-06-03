@@ -66,9 +66,9 @@ class PostView(viewsets.ReadOnlyModelViewSet):
     """
     permission_classes = (AllowAny,)
     serializer_class = PostSerializer
-    queryset = Post.objects.all()
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
+    queryset = Post.objects.all()
 
     @action(detail=True, methods=['POST'], permission_classes=(IsAuthenticated,))
     def like(self, request, *args, **kwargs):
