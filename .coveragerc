@@ -21,6 +21,8 @@ omit=
 
     */asgi.py
     */wsgi.py
+    authentication/managers.py
+    /Users/user/.local/share/virtualenvs/drf_project-Nj6JoIF7/*
 branch = True
 
 [report]

@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
+import datetime
 import os
+
 from environs import Env
 
 env = Env()
@@ -42,9 +43,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'drf_yasg',
     'django_filters',
+    'rest_framework_simplejwt.token_blacklist',
 
     'authentication',
+    'blog',
+    'user_profile',
+
 ]
 
 MIDDLEWARE = [
@@ -78,17 +84,66 @@ TEMPLATES = [
 WSGI_APPLICATION = 'drf_project.wsgi.application'
 
 
+# Rest framework settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'djangorestframework_camel_case.render.CamelCaseJSONRenderer',
+    ),
+    'DEFAULT_PARSER_CLASSES': (
+        'djangorestframework_camel_case.parser.CamelCaseJSONParser',
+    ),
+    'JSON_UNDERSCOREIZE': {
+        'no_underscore_before_number': True,
+    },
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning',
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
+
+
+# Simple JWT settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(
+        hours=env.int('ACCESS_TOKEN_LIFETIME_HOURS', 1000),  # default should be equal to 0
+        minutes=env.int('ACCESS_TOKEN_LIFETIME_MINUTES', 20),
+    ),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=env.int('REFRESH_TOKEN_LIFETIME_DAYS', 7)),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': True,
+    'VERIFY_EXPIRATION': True,
+
+    'AUTH_HEADER_TYPES': ('JWT',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}
+
+
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': env.str('POSTGRES_DB', ''),
         'USER': env.str('POSTGRES_USER', ''),
         'PASSWORD': env.str('POSTGRES_PASSWORD', ''),
         'HOST': env.str('DB_HOST', ''),
-        'PORT': env.str('DB_PORT', '5432'),
+        'PORT': env.int('DB_PORT', 5432),
     },
 }
 
@@ -183,11 +238,23 @@ LOGGING = {
 
 
 # CELERYMEDIA_ROOT
-CELERY_BROKER_URL = env.str('BROKER_URL')
-CELERY_TASK_DEFAULT_QUEUE = "django"
+BROKER_URL = env.str('BROKER_URL')
+CELERY_TASK_SOFT_TIME_LIMIT = env.int('TASK_SOFT_TIME_LIMIT_SEC', 40)
 
-CELERY_TASK_SOFT_TIME_LIMIT = env.int('CELERY_TASK_SOFT_TIME_LIMIT_SEC', 40)
-CELERY_WORKER_SEND_TASK_EVENTS = True
+
+# EMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = env.str('EMAIL_SMTP', 'smtp.gmail.com')
+EMAIL_HOST_USER = env.str('EMAIL_USER', '')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_PASSWORD', '')
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_PORT = 587
+
+SITE_URL = env.str('SITE_URL', '')
+ACTIVATION_PATH = env.str('ACTIVATION_PATH', '')
+PASSWORD_RESET_PATH = env.str('PASSWORD_RESET_PATH', '')
 
 
 # Internationalization

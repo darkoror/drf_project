@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 'db_table': 'users',
             },
             managers=[
-                ('objects', authentication.models.CustomAccountManager()),
+                ('objects', authentication.managers.CustomUserManager()),
             ],
         ),
     ]
