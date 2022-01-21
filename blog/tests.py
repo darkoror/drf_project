@@ -8,7 +8,7 @@ from mixer.backend.django import mixer
 from drf_project.tests import BaseAPITest
 
 
-class TestBlogCategories(BaseAPITest):
+class TestBlogCategories(BaseAPITest):  # author
 
     def setUp(self):
         self.user = self.create_and_login()
@@ -149,7 +149,7 @@ class TestSearchPost(BaseAPITest):
         self.assertEqual(len(resp.data), 1)
         self.assertEqual(resp.data[0]["title"], self.post2.title)
 
-    def test_search_post_find_0_posts(self):
+    def test_search_post_find_no_post(self):
         resp = self.client.get(f"{reverse('author-post:posts-list')}?search=qqq")
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertEqual(len(resp.data), 0)
