@@ -15,4 +15,4 @@ services:
     ports:
       - 6399:6379
     volumes:
-      - redis_data:/data
+      - ./.data/redis:/data
