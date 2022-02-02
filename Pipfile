@@ -25,6 +25,7 @@ celery = ">=5.2.2"
 sqlparse = ">=0.4.2"
 pillow = ">=9.0.0"
 urllib3 = ">=1.26.5"
+mailjet-rest = "*"
 
 [dev-packages]
 

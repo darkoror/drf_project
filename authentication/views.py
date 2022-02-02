@@ -35,7 +35,7 @@ class SignUpView(generics.CreateAPIView):
                               path=ACTIVATION_PATH)
         }
         tasks.send_email.delay(subject="email/activate_account_subject.txt", template="email/activate_account.html",
-                               emails=[user.email], context=context)
+                               recipients=[user.email], context=context)
 
 
 class ActivateUserView(APIView):
