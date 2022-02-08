@@ -1,4 +1,5 @@
 from django.contrib.auth.tokens import default_token_generator
+from django.db import transaction
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 from rest_framework import generics, status
@@ -24,6 +25,7 @@ class SignUpView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = SignUpSerializer
 
+    @transaction.atomic
     def perform_create(self, serializer):
         user = serializer.save()
         context = {
@@ -33,7 +35,7 @@ class SignUpView(generics.CreateAPIView):
                               path=ACTIVATION_PATH)
         }
         tasks.send_email.delay(subject="email/activate_account_subject.txt", template="email/activate_account.html",
-                               emails=[user.email], context=context)
+                               recipients=[user.email], context=context)
 
 
 class ActivateUserView(APIView):

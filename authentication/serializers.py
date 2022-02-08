@@ -1,6 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 from rest_framework import serializers
 
@@ -52,7 +52,7 @@ class ActivateUserSerializer(serializers.Serializer):
         token = data['token']
         try:
             uid, token = token.split('.')
-            uid = int(force_text(urlsafe_base64_decode(uid)))
+            uid = int(force_str(urlsafe_base64_decode(uid)))
         except (TypeError, ValueError):
             self.fail("invalid")
 
@@ -109,7 +109,7 @@ class PasswordResetCompleteSerializer(serializers.Serializer):
     def validate_token(self, value):
         try:
             uid, token = value.split('.')
-            uid = int(force_text(urlsafe_base64_decode(uid)))
+            uid = int(force_str(urlsafe_base64_decode(uid)))
         except (TypeError, ValueError):
             self.fail("invalid")
 

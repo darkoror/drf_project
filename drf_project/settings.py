@@ -142,8 +142,8 @@ DATABASES = {
         'NAME': env.str('POSTGRES_DB', ''),
         'USER': env.str('POSTGRES_USER', ''),
         'PASSWORD': env.str('POSTGRES_PASSWORD', ''),
-        'HOST': env.str('DB_HOST', ''),
-        'PORT': env.int('DB_PORT', 5432),
+        'HOST': env.str('HOST', ''),
+        'PORT': env.int('PORT', 5432),
     },
 }
 
@@ -236,22 +236,34 @@ LOGGING = {
     },
 }
 
+# Redis
+REDIS_URL = env('REDIS_URL', 'redis://localhost:6379')
 
-# CELERYMEDIA_ROOT
-BROKER_URL = env.str('BROKER_URL')
+# Celery
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_TASK_SOFT_TIME_LIMIT = env.int('TASK_SOFT_TIME_LIMIT_SEC', 40)
 
+# Docs
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'JWT': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+}
 
 # EMAIL
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+MAILJET_PUBLIC_KEY = env.str('MAILJET_PUBLIC_KEY', '')
+MAILJET_SECRET_KEY = env.str('MAILJET_SECRET_KEY', '')
+MAILJET_USER = env.str('MAILJET_USER', '')
+MAILJET_NAME = env.str('MAILJET_NAME', '')
+MAILJET_API_VERSION = env.str('MAILJET_API_VERSION', 'v3.1')
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = env.str('EMAIL_SMTP', 'smtp.gmail.com')
-EMAIL_HOST_USER = env.str('EMAIL_USER', '')
-EMAIL_HOST_PASSWORD = env.str('EMAIL_PASSWORD', '')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-EMAIL_PORT = 587
-
+# Frontend urls
 SITE_URL = env.str('SITE_URL', '')
 ACTIVATION_PATH = env.str('ACTIVATION_PATH', '')
 PASSWORD_RESET_PATH = env.str('PASSWORD_RESET_PATH', '')

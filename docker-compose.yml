@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: drf_project_image
+    container_name: drf_project_api
+    command: bash -c "./entrypoint.sh; gunicorn --bind 0.0.0.0:8001 drf_project.wsgi --reload"
+    volumes:
+      - .:/usr/src/app/
+      - logs:/user/src/logs
+      - media:/usr/src/app/media
+      - static:/usr/src/app/static
+    env_file:
+      - .env
+    ports:
+      - 8001:8001
+    expose:
+      - 8001
+    depends_on:
+      - postgres
+      - redis
+
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: drf_project_image
+    container_name: drf_project_celery
+    command: celery -A drf_project worker --loglevel=INFO -B
+    volumes:
+      - .:/usr/src/app/
+    env_file:
+      - .env
+    depends_on:
+      - api
+      - redis
+      - postgres
+
+  postgres:
+    image: postgres:13
+    container_name: drf_project_postgres
+    env_file:
+      - .env
+    ports:
+      - 5432:5432
+    volumes:
+      - ./.data/postgresql:/var/lib/postgresql/data
+
+  redis:
+    image: redis:latest
+    container_name: drf_project_redis
+    env_file:
+      - .env
+    ports:
+      - 6379:6379
+    volumes:
+#      - redis_data:/data
+      - ./.data/redis:/data
+
+  nginx:
+    image: nginx:latest
+    container_name: drf_project_nginx
+    restart: always
+    ports:
+      - 80:80
+    env_file:
+      - .env
+    volumes:
+      - ./.config:/etc/nginx/conf.d
+      # Bind your static and media folders with Nginx container
+      - ./media:/usr/src/app/media
+      - ./assets:/usr/src/app/assets
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  redis_data:
+  logs:
+  media:
+  static:
